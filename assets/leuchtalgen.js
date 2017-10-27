@@ -33,8 +33,8 @@ function updateImage(array) {
 			var x = Math.floor(i * wi);
 			var y = Math.floor(j * he);
 			var d = array[i][j];
-			g += Math.sqrt(u[i][j] * u[i][j] + v[i][j] * v[i][j])*50;
-			b += Math.sqrt(u[i][j] * u[i][j] + v[i][j] * v[i][j])*50;
+			g += Math.floor(Math.sqrt(u[i][j] * u[i][j] + v[i][j] * v[i][j])*50);
+			b += Math.floor(Math.sqrt(u[i][j] * u[i][j] + v[i][j] * v[i][j])*50);
 			if (g > 255) {g = 255;}
 			if (b > 255) {b = 255;}
 
