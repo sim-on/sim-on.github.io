@@ -15,7 +15,7 @@ url:                   http://grosser.in
 
 # Set to '' when hosting on GitHub Pages, like `//<username>.github.io`.
 # Set to '/<reponame>' when using the `gh-pages` branch of a repository.
-baseurl:               /blog
+baseurl:               /
 
 # A short description of the page used for the meta description tag.
 description:           >
@@ -30,7 +30,7 @@ tagline:               >
 keywords:              []
 
 # A (optional) logo for the page. Used by jekyll-seo-tag.
-logo:                  /hydejack/assets/icons/icon.png
+# logo:                  /hydejack/assets/icons/icon.png
 
 # This should be the same author as first entry in `_data/authors.yml`.
 # Duplication is necessary due to the jekyll-feed plugin.
@@ -63,7 +63,7 @@ font:                  "'Noto Sans', Helvetica, Arial, sans-serif"
 font_heading:          "'Bitter', Helvetica, Arial, sans-serif"
 
 # Fallback image and color
-accent_image:          /blog/img/bg.jpg
+accent_image:          /img/bg.jpg
 accent_color:          '#4fb1ba'
 
 # 3rd Party Integrations
