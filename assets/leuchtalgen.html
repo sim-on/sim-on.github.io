@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leuchtalgen</title>
+</head>
+<body>
+<style type="text/css">
+	html, body {
+		width: 100%;
+		height: 100%;
+		margin: 0px;
+		background-color: #000;
+		overflow:hidden;
+	}
+</style>
+<canvas id="myCanvas">
+</canvas> 
+<script type="text/javascript" src="leuchtalgen.js"></script>
+<script>
+// Set up canvas
+var canvas = document.getElementById('myCanvas');
+var ctx = canvas.getContext('2d');
+ctx.canvas.width = window.innerWidth;
+ctx.canvas.height = window.innerHeight;
+var canvasWidth  = canvas.width;
+var canvasHeight = canvas.height;
+var mouseIsDown = false;
+var prevEventX = 0, prevEventY = 0;
+//var imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+//var data = imageData.data;
+
+function animate(position)
+{
+    velocityStep(0.0001, 0.01);
+    densityStep(0.01, 0.01);
+    updateImage(dens);
+	
+   if(position++ < 30000){
+       setTimeout(function(){animate(position);}, 0);
+   }
+}
+
+function init () {
+	//updateImage(dens);
+	initializeArrays();
+	cellDimensions = new CellDimensions();
+	cellDimensions.calculate();
+	animate(0);
+	// Attach mouse event handlers
+	myCanvas.addEventListener('mousemove', ev_mousemove, false);
+	myCanvas.addEventListener('mousedown', ev_mousedown, false);
+	myCanvas.addEventListener('mouseup', ev_mouseup, false);
+	myCanvas.addEventListener('touchstart', ev_mousedown, false);
+	myCanvas.addEventListener('touchend', ev_mouseup, false);
+	myCanvas.addEventListener('touchmove', ev_mousemove, false);
+	window.addEventListener('resize', resizeCanvas, false);
+	// Prevent scrolling on touch devices
+	document.body.addEventListener("touchstart", function (e) {
+		if (e.target == canvas) {
+    	e.preventDefault();
+  		}
+	}, false);
+	document.body.addEventListener("touchend", function (e) {
+  		if (e.target == canvas) {
+    	e.preventDefault();
+  		}
+	}, false);
+	document.body.addEventListener("touchmove", function (e) {
+		if (e.target == canvas) {
+		e.preventDefault();
+  		}
+	}, false);
+}
+
+init();
+</script>
+</body>
+</html>
