@@ -2,7 +2,7 @@
 layout: post
 title: 'Bioluminescence (leuchtalgen.js)'
 tags: [projects]
-accent_image: /img/bg_leuchtalgen.jpg
+accent_image: /img/bg_leuchtalgen.png
 accent_color: '#00c9c7'
 ---
 
