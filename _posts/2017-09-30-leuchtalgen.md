@@ -2,6 +2,8 @@
 layout: post
 title: 'Bioluminescence (leuchtalgen.js)'
 tags: [projects]
+accent_image: /img/bg_leuchtalgen.jpg
+accent_color: '#00c9c7'
 ---
 
 On a trip to the Black Sea last year I had the pleasure of witnessing bioluminescent algae underwater. Their light was faint and only visible during a moonless night, but I was thorougly impressed by their beauty. 
