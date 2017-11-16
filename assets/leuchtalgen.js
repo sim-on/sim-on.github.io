@@ -1,6 +1,6 @@
 /*---------Basic arrays and constants---------*/
 
-var N = 54;
+var N = 54; // Seems to work well on my machines & phone. Make this changeable, maybe.
 var size = (N+2);
 var u = new Array(size);
 var v = new Array(size);
@@ -33,14 +33,14 @@ function updateImage(array) {
 			var x = Math.floor(i * wi);
 			var y = Math.floor(j * he);
 			var d = array[i][j];
-			g += Math.floor(Math.sqrt(u[i][j] * u[i][j] + v[i][j] * v[i][j])*50);
-			b += Math.floor(Math.sqrt(u[i][j] * u[i][j] + v[i][j] * v[i][j])*50);
+			g += Math.sqrt(u[i][j] * u[i][j] + v[i][j] * v[i][j])*50;
+			b += Math.sqrt(u[i][j] * u[i][j] + v[i][j] * v[i][j])*50;
 			if (g > 255) {g = 255;}
 			if (b > 255) {b = 255;}
 
 			ctx.fillStyle = "rgba(" + r + ", " + g + ", " + b + ", " + d + ")";
 			ctx.fillRect(x, y, wi, he);
-	    }
+		}
 	}
 }
 
@@ -138,45 +138,45 @@ function swapDensity() {
 function initializeArrays() {
 	// initialize arrays (2D) with empty arrays / zeros
 	for (var i = 0; i < size; i++) {
-	     u[i] = [];
-	     v[i] = [];
-	     uPrev[i] = [];
-	     vPrev[i] = [];
-	     dens[i] = [];
-	     densPrev[i] = [];
-	  }
+		u[i] = [];
+		v[i] = [];
+		uPrev[i] = [];
+		vPrev[i] = [];
+		dens[i] = [];
+		densPrev[i] = [];
+	}
 
 	for (var i = 0; i < size; i++) {
 		for (var j = 0; j < size; j++) {
-	     	u[i][j] = 0;
-	     	v[i][j] = 0;
-	     	uPrev[i][j] = 0;
-	     	vPrev[i][j] = 0;
-	     	dens[i][j] = 0;
-	     	densPrev[i][j] = 0;
-	 	}
+			u[i][j] = 0;
+			v[i][j] = 0;
+			uPrev[i][j] = 0;
+			vPrev[i][j] = 0;
+			dens[i][j] = 0;
+			densPrev[i][j] = 0;
+		}
 	}
 }
 
 function addSource(N, x, s, dt) {
-  	for (var i = 1; i < (N+1); i++) {
-  		for (var j = 1; j < (N+1); j++) {
-  				x[i][j] += dt * s[i][j];
-  			}
-  		}
-  }
+	for (var i = 1; i < (N+1); i++) {
+		for (var j = 1; j < (N+1); j++) {
+			x[i][j] += dt * s[i][j];
+		}
+	}
+}
 
 function diffuse(N, b, x, x0, diff, dt) {
-  	var a = dt * diff * N * N;
-  	for (var k = 0; k < 20; k++) {
-  		for (var i = 1; i <= N; i++) {
-  			for (var j = 1; j <= N; j++) {
-  				x[i][j] = (x0[i][j] + a * (x[i-1][j] + x[i+1][j] + x[i][j-1] + x[i][j+1])) / (1 + (4.05 * a));
-  			}
-  		}
-  	setBoundaryConditions(N, b, x);
-  	}
-  }
+	var a = dt * diff * N * N;
+	for (var k = 0; k < 20; k++) {
+		for (var i = 1; i <= N; i++) {
+			for (var j = 1; j <= N; j++) {
+				x[i][j] = (x0[i][j] + a * (x[i-1][j] + x[i+1][j] + x[i][j-1] + x[i][j+1])) / (1 + (4.05 * a));
+			}
+		}
+		setBoundaryConditions(N, b, x);
+	}
+}
 
 function advect(N, b, d, d0, u, v, dt) {
 	var i0;
@@ -212,7 +212,7 @@ function advect(N, b, d, d0, u, v, dt) {
 			t1 = y - j0;
 			t0 = 1 - t1;
 			d[i][j] = s0 * (t0 * d0[i0][j0] + t1 * d0[i0][j1]) + 
-				s1 * (t0 * d0[i1][j0] + t1 * d0[i1][j1]);
+			s1 * (t0 * d0[i1][j0] + t1 * d0[i1][j1]);
 		}
 	}
 	setBoundaryConditions(N, b, d);
@@ -244,9 +244,9 @@ function project(N, u, v, p, div) {
 
 	for (var i = 1; i <= N; i++) {
 		for (var j = 1; j <= N; j++) {
-				div[i][j] = -0.5 * h * (u[i+1][j] - u[i-1][j] + v[i][j+1] - v[i][j-1]);
-				p[i][j] = 0;
-			}	
+			div[i][j] = -0.5 * h * (u[i+1][j] - u[i-1][j] + v[i][j+1] - v[i][j-1]);
+			p[i][j] = 0;
+		}	
 	}
 	setBoundaryConditions(N, 0, div);
 	setBoundaryConditions(N, 0, p);
@@ -285,7 +285,8 @@ function setBoundaryConditions(N, b, x) {
 }
 
 function addDensity (x, y, d, array) {
-	//array[x][y] += 3 * Math.sqrt(N);
+	// This should scale with the system size. As the system size is fixed for now, so is this.
+	// array[x][y] += 3 * Math.sqrt(N);
 	array[x][y] += 20;
 }
 
@@ -334,9 +335,9 @@ function getMaxMin (array2d) {
 // Draw a rectangle to test the canvas
 function drawRect(array) {
 	for (var y = 30; y < 40; ++y) {
-	    for (var x = 30; x < 40; ++x) {
-	        array[y][x] = 1;
-	    }
+		for (var x = 30; x < 40; ++x) {
+			array[y][x] = 1;
+		}
 	}
 }
 
