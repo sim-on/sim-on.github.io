@@ -1,78 +1,82 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<title>Leuchtalgen</title>
+    <title>Leuchtalgen</title>
 </head>
+
 <body>
-	<style type="text/css">
-	html, body {
-		width: 100%;
-		height: 100%;
-		margin: 0px;
-		background-color: #000;
-		overflow:hidden;
-	}
-</style>
-<canvas id="myCanvas">
-</canvas> 
-<script type="text/javascript" src="leuchtalgen.js"></script>
-<script>
-// Set up the canvas
-var canvas = document.getElementById('myCanvas');
-var ctx = canvas.getContext('2d');
-ctx.canvas.width = window.innerWidth;
-ctx.canvas.height = window.innerHeight;
-var canvasWidth  = canvas.width;
-var canvasHeight = canvas.height;
-var mouseIsDown = false;
-var prevEventX = 0, prevEventY = 0;
+    <style type="text/css">
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        background-color: #000;
+        overflow: hidden;
+    }
+    </style>
+    <canvas id="myCanvas">
+    </canvas>
+    <script type="text/javascript" src="leuchtalgen.js"></script>
+    <script>
+    // Set up the canvas
+    var canvas = document.getElementById('myCanvas');
+    var ctx = canvas.getContext('2d');
+    ctx.canvas.width = window.innerWidth;
+    ctx.canvas.height = window.innerHeight;
+    var canvasWidth = canvas.width;
+    var canvasHeight = canvas.height;
+    var mouseIsDown = false;
+    var prevEventX = 0,
+        prevEventY = 0;
 
 
-function animate(position)
-{
-	// The time steps I picked here are arbitrary - check alternative implementations to find out which values are reasonable
-	velocityStep(0.0001, 0.01);
-	densityStep(0.01, 0.01);
-	updateImage(dens);
-	
-   if(position++ < 8000){ // make sure your battery is not emptied when you leave open the tab :)
-       setTimeout(function(){animate(position);}, 17); // 60 fps lock
-   }
-}
+    function animate(position) {
+        // The time steps I picked here are arbitrary - check alternative implementations to find out which values are reasonable
+        velocityStep(0.0001, 0.01);
+        densityStep(0.01, 0.01);
+        updateImage(dens);
 
-function init () {
-	initializeArrays();
-	cellDimensions = new CellDimensions();
-	cellDimensions.calculate();
-	animate(0);
-	// Attach event handlers for mouse/touch events
-	myCanvas.addEventListener('mousemove', ev_mousemove, false);
-	myCanvas.addEventListener('mousedown', ev_mousedown, false);
-	myCanvas.addEventListener('mouseup', ev_mouseup, false);
-	myCanvas.addEventListener('touchstart', ev_mousedown, false);
-	myCanvas.addEventListener('touchend', ev_mouseup, false);
-	myCanvas.addEventListener('touchmove', ev_mousemove, false);
-	// Resize the canvas when the window is resized
-	window.addEventListener('resize', resizeCanvas, false);
-	// Prevent scrolling on touch devices
-	document.body.addEventListener("touchstart", function (e) {
-		if (e.target == canvas) {
-			e.preventDefault();
-		}
-	}, false);
-	document.body.addEventListener("touchend", function (e) {
-		if (e.target == canvas) {
-			e.preventDefault();
-		}
-	}, false);
-	document.body.addEventListener("touchmove", function (e) {
-		if (e.target == canvas) {
-			e.preventDefault();
-		}
-	}, false);
-}
+        if (position++ < 8000) { // make sure your battery is not emptied when you leave open the tab :)
+            setTimeout(function() { animate(position); }, 17); // 60 fps lock
+        }
+    }
 
-init();
-</script>
+    function init() {
+        initializeArrays();
+        cellDimensions = new CellDimensions();
+        cellDimensions.calculate();
+        animate(0);
+        // Attach event handlers for mouse/touch events
+        myCanvas.addEventListener('mousemove', ev_mousemove, false);
+        myCanvas.addEventListener('mousedown', ev_mousedown, false);
+        myCanvas.addEventListener('mouseup', ev_mouseup, false);
+        myCanvas.addEventListener('touchstart', ev_mousedown, false);
+        myCanvas.addEventListener('touchend', ev_mouseup, false);
+        myCanvas.addEventListener('touchmove', ev_mousemove, false);
+        // Resize the canvas when the window is resized
+        window.addEventListener('resize', resizeCanvas, false);
+        // Prevent scrolling on touch devices
+        document.body.addEventListener("touchstart", function(e) {
+            if (e.target == canvas) {
+                e.preventDefault();
+            }
+        }, false);
+        document.body.addEventListener("touchend", function(e) {
+            if (e.target == canvas) {
+                e.preventDefault();
+            }
+        }, false);
+        document.body.addEventListener("touchmove", function(e) {
+            if (e.target == canvas) {
+                e.preventDefault();
+            }
+        }, false);
+    }
+
+    init();
+    </script>
 </body>
+
 </html>
