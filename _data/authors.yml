@@ -58,4 +58,4 @@ simon:
     # stumbleupon:     <username>
     # paypal:          <username>
     email:           mailto:simonsblog@mailbox.org
-    # rss:             https://<url>/feed.xml
+    rss:             http://grosser.in/feed.xml
