@@ -3,7 +3,7 @@
 # Change `qwtel` to your shortname (used in the front matter to set a page's author, e.g. `author: qwtel`).
 simon:
   name:              Simon Schäfer
-  email:             simon@mailbox.org
+  email:             simonsblog@mailbox.org
 
   # Used at the bottom of each page and at the top of the `about` layout
   # Markdown enabled, can use multiple paragraphs (enabled by `|`)
@@ -57,5 +57,5 @@ simon:
     # delicious:       <username>
     # stumbleupon:     <username>
     # paypal:          <username>
-    email:           mailto:simon@mailbox.org
+    email:           mailto:simonsblog@mailbox.org
     # rss:             https://<url>/feed.xml
