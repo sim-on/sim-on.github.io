@@ -35,7 +35,7 @@ keywords:              []
 # This should be the same author as first entry in `_data/authors.yml`.
 # Duplication is necessary due to the jekyll-feed plugin.
 author:
-  name:                Simon Schäfer
+  name:                Simon Grosser
   email:               simonsblog@mailbox.org
   rss:                 http://grosser.in/feed.xml
   # The remainder of the author configuration is located in `_data/authors.yml`...
