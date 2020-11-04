@@ -3,7 +3,7 @@
 
 theme: jekyll-theme-hydejack
 
-title:                 Simon's blog
+title:                 sim-on
 
 # Language of your content in 2-letter code, eg: en, de.
 # You may also provide a location, eg: en-us, de_AT.
@@ -11,7 +11,7 @@ lang:                  en
 
 # The unique resource location of your page.
 # Set to `https://<username>.github.io` when hosting on GitHub Pages.
-url:                   http://grosser.in
+url:                   http://sim-on.github.io
 
 # Set to '' when hosting on GitHub Pages, like `//<username>.github.io`.
 # Set to '/<reponame>' when using the `gh-pages` branch of a repository.
@@ -37,11 +37,11 @@ keywords:              []
 author:
   name:                Simon Grosser
   email:               simonsblog@mailbox.org
-  rss:                 http://grosser.in/feed.xml
+  rss:                 http://sim-on.github.io/feed.xml
   # The remainder of the author configuration is located in `_data/authors.yml`...
 
 # This text will appear in a `<small>` tag in the footer of every page.
-copyright:             © 2017. Alle Rechte vorbehalten.
+copyright:             © 2020
 
 # Format of the permalinks
 permalink:             pretty
@@ -49,6 +49,9 @@ permalink:             pretty
 # Pagination configuration (used by the `blog` layout)
 paginate:              5
 paginate_path:         '/page-:num/'
+
+# Disable Dates
+# permalink: /:title.html
 
 # Customizaton
 # ========================================================================================
