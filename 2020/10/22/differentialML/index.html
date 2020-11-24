@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en"><!--
+ __  __                __                                     __
+/\ \/\ \              /\ \             __                    /\ \
+\ \ \_\ \   __  __    \_\ \      __   /\_\      __       ___ \ \ \/'\
+ \ \  _  \ /\ \/\ \   /'_` \   /'__`\ \/\ \   /'__`\    /'___\\ \ , <
+  \ \ \ \ \\ \ \_\ \ /\ \L\ \ /\  __/  \ \ \ /\ \L\.\_ /\ \__/ \ \ \\`\
+   \ \_\ \_\\/`____ \\ \___,_\\ \____\ _\ \ \\ \__/.\_\\ \____\ \ \_\ \_\
+    \/_/\/_/ `/___/> \\/__,_ / \/____//\ \_\ \\/__/\/_/ \/____/  \/_/\/_/
+                /\___/                \ \____/
+                \/__/                  \/___/
+
+Powered by Hydejack v7.0.1 <https://qwtel.com/hydejack/>
+-->
+
+
+
+
+
+
+
+
+
+
+
+
+<head>
+  <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+
+
+  
+<!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Machine Learning + Monte Carlo + Automatic Differentiation | sim-on</title>
+<meta name="generator" content="Jekyll v3.6.3" />
+<meta property="og:title" content="Machine Learning + Monte Carlo + Automatic Differentiation" />
+<meta name="author" content="Simon Grosser" />
+<meta property="og:locale" content="en" />
+<meta name="description" content="I recently stumbled on the paper Differential Machine Learning by Brian Huge and Antoine Savine and was immediately intrigued because it connects some concepts in interesting ways. “Differential” in the title alludes to the fact that derivatives can be used to improve the training of a neural network when little training data is available. The libraries (TensorFlow, pytorch, …) usually used for implementing said neural networks make this possible in an efficient manner: Since the gradients of the outputs w.r.t. the inputs are automatically calculated in the backward pass (via the computational graph), it is possible to compare these backpropagated results to labels of differentials and include precomputed gradients in the training of the network." />
+<meta property="og:description" content="I recently stumbled on the paper Differential Machine Learning by Brian Huge and Antoine Savine and was immediately intrigued because it connects some concepts in interesting ways. “Differential” in the title alludes to the fact that derivatives can be used to improve the training of a neural network when little training data is available. The libraries (TensorFlow, pytorch, …) usually used for implementing said neural networks make this possible in an efficient manner: Since the gradients of the outputs w.r.t. the inputs are automatically calculated in the backward pass (via the computational graph), it is possible to compare these backpropagated results to labels of differentials and include precomputed gradients in the training of the network." />
+<link rel="canonical" href="http://sim-on.github.io/2020/10/22/differentialML/" />
+<meta property="og:url" content="http://sim-on.github.io/2020/10/22/differentialML/" />
+<meta property="og:site_name" content="sim-on" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-22T00:00:00+02:00" />
+<script type="application/ld+json">
+{"url":"http://sim-on.github.io/2020/10/22/differentialML/","headline":"Machine Learning + Monte Carlo + Automatic Differentiation","dateModified":"2020-10-22T00:00:00+02:00","datePublished":"2020-10-22T00:00:00+02:00","author":{"@type":"Person","name":"Simon Grosser"},"mainEntityOfPage":{"@type":"WebPage","@id":"http://sim-on.github.io/2020/10/22/differentialML/"},"description":"I recently stumbled on the paper Differential Machine Learning by Brian Huge and Antoine Savine and was immediately intrigued because it connects some concepts in interesting ways. “Differential” in the title alludes to the fact that derivatives can be used to improve the training of a neural network when little training data is available. The libraries (TensorFlow, pytorch, …) usually used for implementing said neural networks make this possible in an efficient manner: Since the gradients of the outputs w.r.t. the inputs are automatically calculated in the backward pass (via the computational graph), it is possible to compare these backpropagated results to labels of differentials and include precomputed gradients in the training of the network.","@type":"BlogPosting","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+  
+
+  
+    <meta name="keywords" content="">
+  
+
+
+<meta name="mobile-web-app-capable" content="yes">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="sim-on">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+<meta name="application-name" content="sim-on">
+<meta name="msapplication-config" content="/assets/ieconfig.xml">
+
+
+<meta name="theme-color" content="#A85641">
+
+
+<meta name="generator" content="Hydejack v7.0.1" />
+
+
+<link rel="alternate" type="application/atom+xml" title="sim-on Feed" href="http://sim-on.github.io/feed.xml">
+
+
+<link rel="alternate" href="http://sim-on.github.io/2020/10/22/differentialML/" hreflang="en">
+
+<link rel="shortcut icon" href="/assets/icons/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/icons/icon.png">
+
+<link rel="manifest" href="/assets/manifest.json">
+
+
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+
+
+
+
+<link id="_katexJS"  rel="dns-prefetch" href="/assets/bower_components/katex/dist/katex.min.js">
+<link id="_katexCSS" rel="dns-prefetch" href="/assets/bower_components/katex/dist/katex.min.css">
+
+<script>
+  function stdOnEnd(n,e){n.onload=function(){this.onerror=this.onload=null,e(null,n)},n.onerror=function(){this.onerror=this.onload=null,e(new Error("Failed to load "+this.src),n)}}function ieOnEnd(n,e){n.onreadystatechange=function(){"complete"!=this.readyState&&"loaded"!=this.readyState||(this.onreadystatechange=null,e(null,n))}}window.setRelStylesheet=function(n){function e(){this.rel="stylesheet"}var o=document.getElementById(n);o.addEventListener?o.addEventListener("load",e,!1):o.onload=e},window._loaded=!1,window.loadJSDeferred=function(n,e){function o(){window._loaded=!0;var o=document.createElement("script");o.src=n,e&&(("onload"in o?stdOnEnd:ieOnEnd)(o,e),o.onload||stdOnEnd(o,e));var t=document.scripts[0];t.parentNode.insertBefore(o,t)}window._loaded?o():window.addEventListener?window.addEventListener("load",o,!1):window.onload=o};
+!function(a){"use strict";var b=function(b,c,d){function e(a){return h.body?a():void setTimeout(function(){e(a)})}function f(){i.addEventListener&&i.removeEventListener("load",f),i.media=d||"all"}var g,h=a.document,i=h.createElement("link");if(c)g=c;else{var j=(h.body||h.getElementsByTagName("head")[0]).childNodes;g=j[j.length-1]}var k=h.styleSheets;i.rel="stylesheet",i.href=b,i.media="only x",e(function(){g.parentNode.insertBefore(i,c?g:g.nextSibling)});var l=function(a){for(var b=i.href,c=k.length;c--;)if(k[c].href===b)return a();setTimeout(function(){l(a)})};return i.addEventListener&&i.addEventListener("load",f),i.onloadcssdefined=l,l(f),i};"undefined"!=typeof exports?exports.loadCSS=b:a.loadCSS=b}("undefined"!=typeof global?global:this);
+!function(a){if(a.loadCSS){var b=loadCSS.relpreload={};if(b.support=function(){try{return a.document.createElement("link").relList.supports("preload")}catch(b){return!1}},b.poly=function(){for(var b=a.document.getElementsByTagName("link"),c=0;c<b.length;c++){var d=b[c];"preload"===d.rel&&"style"===d.getAttribute("as")&&(a.loadCSS(d.href,d,d.getAttribute("media")),d.rel=null)}},!b.support()){b.poly();var c=a.setInterval(b.poly,300);a.addEventListener&&a.addEventListener("load",function(){b.poly(),a.clearInterval(c)}),a.attachEvent&&a.attachEvent("onload",function(){a.clearInterval(c)})}}}(this);
+
+  window._noPushState = false;
+  window._noDrawer = false;
+</script>
+
+<!--[if gt IE 8]><!---->
+
+
+<script>
+  WebFontConfig = {
+    
+    google: {
+      families: ['Bitter','Noto+Sans:400,400i,700,700i']
+    },
+    
+
+    custom: {
+      families: ['icomoon'],
+      urls: ['/assets/icomoon/style.css']
+    }
+  };
+  (function(d) {
+    var wf = d.createElement('script'), s = d.scripts[0];
+    wf.src = "/assets/bower_components/webfontloader/webfontloader.js";
+    s.parentNode.insertBefore(wf, s);
+  }(document));
+</script>
+<!--<![endif]-->
+
+<noscript>
+  
+  
+
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bitter%7CNoto+Sans:400,400i,700,700i">
+    <style>
+      html { font-family: 'Noto Sans', Helvetica, Arial, sans-serif }
+      h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .heading { font-family: 'Bitter', Helvetica, Arial, sans-serif }
+    </style>
+  
+
+  <link rel="stylesheet" href="/assets/icomoon/style.css">
+</noscript>
+
+<!--[if gt IE 8]><!---->
+
+
+
+  <link rel="stylesheet" href="/assets/css/hydejack.css?v=7.0.1">
+
+
+
+<style id="_pageStyle">
+
+.content a:not(.btn){color:#A85641;border-color:rgba(168,86,65,0.2)}.content a:not(.btn):hover{border-color:#A85641}:focus{outline-color:#A85641}.btn-primary{color:#fff;background-color:#A85641;border-color:#A85641}.btn-primary:focus,.btn-primary.focus{box-shadow:0 0 0 3px rgba(168,86,65,0.5)}.btn-primary:hover,.btn-primary.hover{color:#fff;background-color:#8c4836;border-color:#8c4836}.btn-primary:disabled,.btn-primary.disabled{color:#fff;background-color:#A85641;border-color:#A85641}.btn-primary:active,.btn-primary.active{color:#fff;background-color:#8c4836;border-color:#8c4836}::selection{color:#fff;background:#A85641}::-moz-selection{color:#fff;background:#A85641}
+
+</style>
+
+<!--<![endif]-->
+
+
+
+
+</head>
+
+<body>
+  <div class="navbar fixed-top">
+  <div class="content">
+    <div class="nav-btn-bar">
+      <span class="sr-only">Jump to:</span>
+      <a id="_menu" class="nav-btn no-hover" href="#_navigation">
+        <span class="sr-only">Navigation</span>
+        <span class="icon-menu"></span>
+      </a>
+    </div>
+  </div>
+</div>
+
+
+<hy-push-state>
+  <main
+    id="_main"
+    class="content fade-in layout-post"
+    role="main"
+    data-color="#A85641"
+    
+      data-image="/img/bg.jpg"
+      data-overlay
+    
+    >
+    
+
+
+<article id="post-2020-10-22-differentialML" class="page post" role="article">
+  <header>
+    <h1 class="post-title">
+      
+        Machine Learning + Monte Carlo + Automatic Differentiation
+      
+    </h1>
+
+    <p class="post-date heading">
+      
+      <time datetime="2020-10-22T00:00:00+02:00">22 Oct 2020</time>
+      
+      
+      
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+
+
+
+
+
+
+on <a href="/tag/projects/" class="flip-title">Projects</a>
+
+    </p>
+
+    
+
+
+
+  <div class="hr pb0"></div>
+
+
+  </header>
+
+  
+    <p>I recently stumbled on the paper <a href="https://arxiv.org/abs/2005.02347">Differential Machine Learning</a> by Brian Huge and Antoine Savine and was immediately intrigued because it connects some concepts in interesting ways. “Differential” in the title alludes to the fact that derivatives can be used to improve the training of a neural network when little training data is available.</p>
+
+<p>The libraries (TensorFlow, pytorch, …) usually used for implementing said neural networks make this possible in an efficient manner: Since the gradients of the outputs w.r.t. the inputs are automatically calculated in the backward pass (via the computational graph), it is possible to compare these backpropagated results to labels of differentials and include precomputed gradients in the training of the network.
+<!--end_excerpt--></p>
+
+<h2 id="why-is-this-even-helpful">Why is this even helpful?</h2>
+
+<p>In the context of risk management, it can be necessary to revaluate a trading book/a large collection of financial instruments under various conditions. This can be computationally intensive if the parameter space and/or the number of instruments to evaluate is large. Even more so if sensitivities (= derivatives of the output value w.r.t. the inputs) are needed for a large number of parameters. If no closed form solutions exist for these derivatives, difference quotients for numeric differentiation have to be computed for all parameters of interest. This becomes prohibitively expensive fairly quickly.</p>
+
+<p>Using a trained neural network to estimate the outputs (including the sensitivities) may be a promising alternative, since forward passes of the network can be calculated quickly. As the paper by Huge and Savine shows, augmenting the training data with derivatives improves the prediction accuracy of the neural network for both normal and differential outputs especially for higher-dimensional problems.</p>
+
+<h2 id="where-to-get-the-gradients-for-this">Where to get the gradients for this?</h2>
+
+<p>With the advent of automatic differentiation (AD), calculating derivatives for e.g. all the parameters entering a Monte-Carlo simulation has become feasible. Since you get the gradients for “free”, you might as well use them.</p>
+
+<h2 id="what-is-this-notebook">What is this notebook?</h2>
+
+<p>If you are interested in the techniques used in the paper, there is <a href="https://github.com/differential-machine-learning/notebooks/blob/master/DifferentialML.ipynb">a notebook</a> written by the authors which is very extensive. I tried some of the techniques with pytorch, since I’d like to become more familiar with it. I documented the steps in the notebook below – maybe it can be of some help to those trying to implement the algorithm.</p>
+
+<p>Note that this technique only becomes truly useful if you have access to sophisticated valuation techniques of financial instruments that include AD and produce the needed derivatives. I don’t, so this example has to suffice :)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="n">nn</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="n">F</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="n">optim</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="n">sns</span><span class="o">.</span><span class="nb">set</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h2 id="not-quite-off-topic-geometric-brownian-motion">Not quite off topic: Geometric Brownian Motion</h2>
+
+<p>A stochastic process is said to follow a geometric Brownian motion if it is a solution to the SDE of the form <code class="MathJax_Preview">dS_t = \mu S_t\,dt + \sigma S_t\,dW_t</code><script type="math/tex">dS_t = \mu S_t\,dt + \sigma S_t\,dW_t</script>.
+A general solution for this SDE is <code class="MathJax_Preview">S_t = S_0\exp\left( \left(\mu - \frac{\sigma^2}{2} \right)t + \sigma W_t\right)</code><script type="math/tex">S_t = S_0\exp\left( \left(\mu - \frac{\sigma^2}{2} \right)t + \sigma W_t\right)</script>.
+Since this SDE is behind the Black-Scholes model for option pricing, simulating this stochastic process can yield realizations of sample stock movements over a specified time interval.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">Brownian</span><span class="p">:</span>
+    <span class="s">'''1D Random Walk for simulating stock prices'''</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="err">µ</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="err">µ</span> <span class="o">=</span> <span class="err">µ</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
+
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">t</span><span class="p">)))</span>
+        <span class="n">dW</span> <span class="o">=</span> <span class="p">(</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">dt</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">dW</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">W</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="err">µ</span> <span class="o">-</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">def</span> <span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">random</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Example: Create 50 realizations of a geometric Brownian process</span>
+<span class="n">br</span> <span class="o">=</span> <span class="n">Brownian</span><span class="p">(</span><span class="err">µ</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">br</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/img/Black%20Scholes%20%2B%20ML_4_0.svg" alt="svg" /></p>
+
+<h2 id="example-creating-samples-of-call-options">Example: Creating samples of call options</h2>
+
+<p>The paths simulated above can be seen as the fluctuations of the underlying stock prices of some hypothetical call options. If one starts at a random point <code class="MathJax_Preview">S_{t_1}</code><script type="math/tex">S_{t_1}</script> at time <code class="MathJax_Preview">t_1</code><script type="math/tex">t_1</script>, after a time <code class="MathJax_Preview">t_2 - t_1</code><script type="math/tex">t_2 - t_1</script> one will have arrived at the value <code class="MathJax_Preview">S_{t_2}</code><script type="math/tex">S_{t_2}</script>.</p>
+
+<p>Given a strike <code class="MathJax_Preview">K</code><script type="math/tex">K</script>, the <a href="https://en.wikipedia.org/wiki/Option_(finance)#/media/File:Long_call_option.svg">payoff</a> of the option at time <code class="MathJax_Preview">t_2</code><script type="math/tex">t_2</script> is given by <code class="MathJax_Preview">\max(S_{t_2} - K, 0)</code><script type="math/tex">\max(S_{t_2} - K, 0)</script>.
+As a result, you get samples of the relationship between <code class="MathJax_Preview">S_{t_1}</code><script type="math/tex">S_{t_1}</script> and the payoff <code class="MathJax_Preview">\max(S_{t_2} - K, 0)</code><script type="math/tex">\max(S_{t_2} - K, 0)</script> as seen in the image below.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">BlackScholesLSM</span><span class="p">:</span>
+    <span class="s">'''Simulate LSM samples for call options'''</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">t1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">t2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vol</span> <span class="o">=</span> <span class="n">vol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t1</span> <span class="o">=</span> <span class="n">t1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t2</span> <span class="o">=</span> <span class="n">t2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vola0</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+    <span class="k">def</span> <span class="nf">training_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span>
+        <span class="n">rw</span> <span class="o">=</span> <span class="n">Brownian</span><span class="p">(</span><span class="err">µ</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol</span><span class="p">)</span>
+        <span class="n">walks</span> <span class="o">=</span> <span class="n">rw</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="p">,</span> <span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t2</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">t1</span><span class="p">,</span> <span class="n">random</span> <span class="o">=</span> <span class="n">rng</span><span class="p">)</span>
+        <span class="n">starting_point_randoms</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="n">n</span><span class="p">)</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="o">-</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vola0</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">t1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">vola0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t1</span><span class="p">)</span> <span class="o">*</span> <span class="n">starting_point_randoms</span><span class="p">)</span>
+        <span class="n">s2</span> <span class="o">=</span> <span class="n">s1</span> <span class="o">*</span> <span class="n">walks</span> 
+        <span class="n">payoff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">s2</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">ds2_ds1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">s2</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">walks</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s1</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span> <span class="n">payoff</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]),</span> <span class="n">ds2_ds1</span><span class="o">.</span><span class="n">reshape</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c"># Analytic Black-Scholes option valuation</span>
+
+<span class="k">def</span> <span class="nf">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">s</span><span class="o">/</span><span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="n">vol</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">vol</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="n">vol</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">price</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span> <span class="o">-</span> <span class="n">k</span> <span class="o">*</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">d2</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">delta</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">vega</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">d1</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Example of the relationship between s1 and the payoff for the given parameters</span>
+<span class="n">bs_example</span> <span class="o">=</span> <span class="n">BlackScholesLSM</span><span class="p">(</span><span class="n">vol</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">t2</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">1.1</span><span class="p">)</span>
+<span class="n">s1_example</span><span class="p">,</span> <span class="n">payoff_example</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">bslsm</span><span class="o">.</span><span class="n">training_set</span><span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">s1_example</span><span class="p">,</span> <span class="n">payoff_example</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s">"+"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/img/Black%20Scholes%20%2B%20ML_7_0.svg" alt="svg" /></p>
+
+<p>These samples are the starting point for option valuation in the paper by <a href="https://people.math.ethz.ch/~hjfurrer/teaching/LongstaffSchwartzAmericanOptionsLeastSquareMonteCarlo.pdf">Longstaff and Schwartz</a>. As it turns out, performing a regression on these samples results in an unbiased estimator for the relationship between <code class="MathJax_Preview">S_{t_1}</code><script type="math/tex">S_{t_1}</script> and the value of the underlying at time <code class="MathJax_Preview">t_2</code><script type="math/tex">t_2</script>, <code class="MathJax_Preview">S_{t_2}</code><script type="math/tex">S_{t_2}</script>. The derivation of this property can be found in chapter 2 of the <a href="https://arxiv.org/abs/2005.02347">original paper</a>.</p>
+
+<p>So: Rather interestingly, the “point cloud” below is sufficient for the estimator to converge on the orange line, the “true” Black-Scholes formula. We will see this below.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Show samples and analytical Black-Scholes valuation</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">s1_example</span><span class="p">,</span> <span class="n">payoff_example</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s">"+"</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">"grey"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span> <span class="n">price</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">20</span><span class="p">),</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">color</span> <span class="o">=</span> <span class="s">"orange"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/img/Black%20Scholes%20%2B%20ML_9_0.svg" alt="svg" /></p>
+
+<h2 id="training-a-neural-network-on-lsm-samples">Training a neural network on LSM samples</h2>
+<p>Training a regressor on the samples created above will yield an approximation of the Black-Scholes formula. Neural networks have the additional benefit that derivatives can be included in training the network, which promises faster convergence to the “true” result. In the case of the Black-Scholes option pricing, this is not yet an obvious benefit, since the dimension of the parameters involved is low (the stock price <code class="MathJax_Preview">S_{t_1}</code><script type="math/tex">S_{t_1}</script>). For higher-dimensional problems, the advantages should be more visible. We will start with this simple example however, and see if there is a benefit of incorporating the derivative <code class="MathJax_Preview">\frac { \partial \left( S_{t_2} - K \right)^+} {S_{t_1}}</code><script type="math/tex">\frac { \partial \left( S_{t_2} - K \right)^+} {S_{t_1}}</script> in training.</p>
+
+<p>Perspectively, such derivatives would be given by automatic differentiation during e.g. a Monte-Carlo simulation. For this example we use the hand-derived version instead. Starting with the solution of the SDE for two points in time, <code class="MathJax_Preview">S_{t_2}=S_{t_1} \exp \left( -\frac{\sigma^2}{2} \left( {t_2} - {t_1} \right) + \sigma \left( W_{t_2} - W_{t_1} \right) \right)</code><script type="math/tex">S_{t_2}=S_{t_1} \exp \left( -\frac{\sigma^2}{2} \left( {t_2} - {t_1} \right) + \sigma \left( W_{t_2} - W_{t_1} \right) \right)</script>, we derive:</p>
+
+<pre class="MathJax_Preview"><code>\begin{aligned} 
+\frac { \partial \left( S_{t_2} - K \right)^+} {\partial S_{t_1}} &amp;= 
+\begin{cases}
+   \frac { \partial \left( S_{t_2} - K \right)} {\partial S_{t_1}} &amp;\text{if } S_{t_2} \gt K \\
+   0 &amp;\text{else } 
+\end{cases} \\ &amp;= 1_{\left\{S_{t_2} \gt K\right\}} \frac{S_{t_2}}{S_{t_1}}
+\end{aligned}</code></pre>
+<script type="math/tex; mode=display">% <![CDATA[
+\begin{aligned} 
+\frac { \partial \left( S_{t_2} - K \right)^+} {\partial S_{t_1}} &= 
+\begin{cases}
+   \frac { \partial \left( S_{t_2} - K \right)} {\partial S_{t_1}} &\text{if } S_{t_2} \gt K \\
+   0 &\text{else } 
+\end{cases} \\ &= 1_{\left\{S_{t_2} \gt K\right\}} \frac{S_{t_2}}{S_{t_1}}
+\end{aligned} %]]></script>
+
+<p>I have adapted the data normalization from the notebook accompanying the original paper. All values are standardized such that their mean is 0 and their standard deviation is 1. This facilitates generalizing to other datasets (which we will not do here):</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># data preparation adapted from the paper</span>
+<span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1.0e-08</span>
+<span class="k">def</span> <span class="nf">normalize_data</span><span class="p">(</span><span class="n">x_raw</span><span class="p">,</span> <span class="n">y_raw</span><span class="p">,</span> <span class="n">dydx_raw</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    
+    <span class="c"># normalize dataset</span>
+    <span class="n">x_mean</span> <span class="o">=</span> <span class="n">x_raw</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">x_std</span> <span class="o">=</span> <span class="n">x_raw</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">epsilon</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_raw</span> <span class="o">-</span> <span class="n">x_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">x_std</span>
+    <span class="n">y_mean</span> <span class="o">=</span> <span class="n">y_raw</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">y_std</span> <span class="o">=</span> <span class="n">y_raw</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">epsilon</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_raw</span> <span class="o">-</span> <span class="n">y_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_std</span>
+    
+    <span class="c"># normalize derivatives, too</span>
+    <span class="k">if</span> <span class="n">dydx_raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">dy_dx</span> <span class="o">=</span> <span class="n">dydx_raw</span> <span class="o">/</span> <span class="n">y_std</span> <span class="o">*</span> <span class="n">x_std</span> 
+        <span class="c"># weights of derivatives in cost function = (quad) mean size</span>
+        <span class="n">lambda_j</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">dy_dx</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dy_dx</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">lambda_j</span> <span class="o">=</span> <span class="bp">None</span>
+    
+    <span class="k">return</span> <span class="n">x_mean</span><span class="p">,</span> <span class="n">x_std</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y_mean</span><span class="p">,</span> <span class="n">y_std</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dy_dx</span><span class="p">,</span> <span class="n">lambda_j</span>
+
+<span class="c"># Example:</span>
+<span class="c"># x_mean, x_std, x, y_mean, y_std, y, dy_dx, lambda_j = normalize_data(x_raw,y_raw,dY_dX_raw)</span>
+</code></pre></div></div>
+
+<h2 id="a-simple-neural-network">A simple neural network</h2>
+<p>Next, we will use pytorch to create a fully connected neural network with some hidden layers. The number of inputs is 1 in our case (the price <code class="MathJax_Preview">S_{t_1}</code><script type="math/tex">S_{t_1}</script>) as is the number of outputs (the payoff). In this example, we will use 4 hidden layers with 10 neurons each. In the class below there are also convenience functions for retrieving the output of the network. Since we scale the input data, any test data will have to be scaled (and the output un-scaled again) for the predictions to make sense.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">FullyConnectedNet</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                <span class="n">input_dimensions</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="c"># number of input neurons</span>
+                <span class="n">hidden_layers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="c"># number of hidden layers</span>
+                <span class="n">hidden_neurons</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="c"># neurons per hidden layer</span>
+                <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span> <span class="c"># make calculations deterministic again</span>
+                <span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FullyConnectedNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        
+        <span class="c"># Define the inputs, outputs and inner layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inp</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_dimensions</span><span class="p">,</span> <span class="n">hidden_neurons</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">hidden_layers</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_neurons</span><span class="p">,</span> <span class="n">hidden_neurons</span><span class="p">))</span>
+        <span class="c"># self.dropout = nn.Dropout(0.01) </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">hidden_neurons</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c"># Initialize weights with Xavier/Glorot</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inp</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">:</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softplus</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softplus</span><span class="p">(</span><span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="c"># x = self.dropout(x)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">predict_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">x_mean</span><span class="p">,</span> <span class="n">x_std</span><span class="p">,</span> <span class="n">y_mean</span><span class="p">,</span> <span class="n">y_std</span><span class="p">):</span>
+        <span class="c"># scale the input</span>
+        <span class="n">x_scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">x_std</span>
+        <span class="c"># prediction for said scaled input</span>
+        <span class="n">t_x_scaled</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">x_scaled</span><span class="p">)</span>
+        <span class="n">y_scaled</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">t_x_scaled</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="c"># un-scale</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y_mean</span> <span class="o">+</span> <span class="n">y_std</span> <span class="o">*</span> <span class="n">y_scaled</span>
+        <span class="k">return</span> <span class="n">y</span>
+
+    <span class="k">def</span> <span class="nf">predict_values_and_derivs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">x_mean</span><span class="p">,</span> <span class="n">x_std</span><span class="p">,</span> <span class="n">y_mean</span><span class="p">,</span> <span class="n">y_std</span><span class="p">):</span>
+        <span class="c"># scale the input</span>
+        <span class="n">x_scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">x_std</span>
+        <span class="c"># prediction for said scaled input</span>
+        <span class="n">t_x_scaled</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">x_scaled</span><span class="p">)</span>
+        <span class="n">t_x_scaled</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">t_x_scaled</span><span class="p">)</span>
+        <span class="n">gradspred</span><span class="p">,</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">t_x_scaled</span><span class="p">,</span> <span class="n">grad_outputs</span><span class="o">=</span><span class="n">outputs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">fill_</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">retain_graph</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">dyscaled_dxscaled</span> <span class="o">=</span> <span class="n">gradspred</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="n">y_scaled</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="c"># un-scale</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y_mean</span> <span class="o">+</span> <span class="n">y_std</span> <span class="o">*</span> <span class="n">y_scaled</span>
+        <span class="n">dydx</span> <span class="o">=</span> <span class="n">y_std</span> <span class="o">/</span> <span class="n">x_std</span> <span class="o">*</span> <span class="n">dyscaled_dxscaled</span>
+        <span class="k">return</span> <span class="n">y</span><span class="p">,</span> <span class="n">dydx</span>
+
+<span class="c"># Example</span>
+<span class="c"># net = FullyConnectedNet(input_dimensions = 1, hidden_layers = 4, hidden_neurons = 10, seed = 42)</span>
+
+</code></pre></div></div>
+
+<h2 id="the-training-loop">The training loop</h2>
+<p>We now train the network on the data for a small amount of epochs (~100). Depending on whether we pass derivatives, they are incorporated in the loss function.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Training loop</span>
+
+<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">dydx_train</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">lambda_j</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">epochs</span> <span class="o">=</span> <span class="mi">100</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">dydx_train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">lambda_j</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">t_lambda_j</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">lambda_j</span><span class="p">)</span>
+
+    <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+
+        <span class="n">running_loss_standard</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">running_loss_derivative</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="c"># forward + backward + optimize</span>
+        <span class="n">outputs</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span>
+
+        <span class="n">loss_standard</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dydx_train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">lambda_j</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># Calculate the derivative of the network w.r.t. the inputs and compare to the given derivatives </span>
+            <span class="n">gradspred</span><span class="p">,</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">grad_outputs</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">outputs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">fill_</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">create_graph</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">retain_graph</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="n">loss_derivative</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">t_lambda_j</span> <span class="o">*</span> <span class="n">gradspred</span><span class="p">,</span> <span class="n">t_lambda_j</span> <span class="o">*</span> <span class="n">dydx_train</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">loss_standard</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">loss_derivative</span>
+        
+        <span class="k">else</span><span class="p">:</span> <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_standard</span>
+        
+        <span class="c"># zero the parameter gradients</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        
+        <span class="c"># backpropagate</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">epoch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">epochs</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">x_train</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+
+        <span class="c"># print statistics</span>
+        <span class="n">running_loss_standard</span> <span class="o">+=</span> <span class="n">loss_standard</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s">'[{epoch + 1}] standard loss: {running_loss_standard:.3f}'</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="s">""</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dydx_train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">lambda_j</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">running_loss_derivative</span> <span class="o">+=</span> <span class="n">loss_derivative</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s">', derivative loss: {running_loss_derivative:.3f}'</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="s">""</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">""</span><span class="p">)</span>
+        <span class="n">running_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">'Training completed.'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="comparison-of-results">Comparison of results</h2>
+<p>Let’s train two networks, one with derivatives, one without, and compare the results.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vol</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">t1</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">t2</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">k</span> <span class="o">=</span> <span class="mf">1.1</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="c"># Create a training set of call option samples, including derivatives</span>
+<span class="n">bslsm</span> <span class="o">=</span> <span class="n">BlackScholesLSM</span><span class="p">(</span><span class="n">vol</span> <span class="o">=</span> <span class="n">vol</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">t2</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="n">k</span><span class="p">)</span>
+<span class="n">x_raw</span><span class="p">,</span> <span class="n">y_raw</span><span class="p">,</span> <span class="n">dY_dX_raw</span> <span class="o">=</span> <span class="n">bslsm</span><span class="o">.</span><span class="n">training_set</span><span class="p">(</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span><span class="p">,</span> <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span>
+<span class="n">x_mean</span><span class="p">,</span> <span class="n">x_std</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y_mean</span><span class="p">,</span> <span class="n">y_std</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">dy_dx</span><span class="p">,</span> <span class="n">lambda_j</span> <span class="o">=</span> <span class="n">normalize_data</span><span class="p">(</span><span class="n">x_raw</span><span class="p">,</span><span class="n">y_raw</span><span class="p">,</span><span class="n">dY_dX_raw</span><span class="p">)</span>
+
+<span class="c"># Create two networks with identical architecture</span>
+<span class="n">net_standard</span> <span class="o">=</span> <span class="n">FullyConnectedNet</span><span class="p">(</span><span class="n">input_dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">hidden_layers</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">hidden_neurons</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span>
+<span class="n">net_deriv</span> <span class="o">=</span> <span class="n">FullyConnectedNet</span><span class="p">(</span><span class="n">input_dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">hidden_layers</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">hidden_neurons</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">seed</span> <span class="o">=</span> <span class="mi">42</span><span class="p">)</span>
+
+<span class="c"># Create tensors of the training data</span>
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">dydx_train</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">dy_dx</span><span class="p">)</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">FloatTensor</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+<span class="c"># Do not delete the gradients of the input tensor</span>
+<span class="n">x_train</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="bp">True</span>
+
+<span class="c"># Train</span>
+<span class="n">train</span><span class="p">(</span><span class="n">net_standard</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">train</span><span class="p">(</span><span class="n">net_deriv</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">dydx_train</span><span class="p">,</span> <span class="n">lambda_j</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[1] standard loss: 3.306
+...
+[100] standard loss: 0.235
+Training completed.
+[1] standard loss: 3.306, derivative loss: 1.000
+...
+[100] standard loss: 0.217, derivative loss: 0.318
+Training completed.
+</code></pre></div></div>
+
+<p>The loss numbers seem better for the training set that included the derivative. Let’s view this graphically:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Create a comparison to the analytical values</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">,</span> <span class="mi">50</span><span class="p">)])</span>
+<span class="n">y_analytic</span> <span class="o">=</span> <span class="n">price</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">y_deriv_analytic</span> <span class="o">=</span> <span class="n">delta</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c"># Make predictions</span>
+<span class="n">y_pred_standard</span><span class="p">,</span> <span class="n">dydx_pred_standard</span> <span class="o">=</span> <span class="n">net_standard</span><span class="o">.</span><span class="n">predict_values_and_derivs</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">x_mean</span><span class="p">,</span> <span class="n">x_std</span><span class="p">,</span> <span class="n">y_mean</span><span class="p">,</span> <span class="n">y_std</span><span class="p">)</span>
+<span class="n">y_pred_deriv</span><span class="p">,</span> <span class="n">dydx_pred_deriv</span> <span class="o">=</span> <span class="n">net_deriv</span><span class="o">.</span><span class="n">predict_values_and_derivs</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">x_mean</span><span class="p">,</span> <span class="n">x_std</span><span class="p">,</span> <span class="n">y_mean</span><span class="p">,</span> <span class="n">y_std</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Plot</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">"Black-Scholes approximation after 100 epochs"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_analytic</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_pred_standard</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s">"+"</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">"orange"</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'standard'</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_analytic</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_pred_deriv</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s">"+"</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">"green"</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'differential'</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_deriv_analytic</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">dydx_pred_standard</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s">"+"</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">"orange"</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'standard delta'</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_deriv_analytic</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">dydx_pred_deriv</span><span class="p">,</span> <span class="n">marker</span> <span class="o">=</span> <span class="s">"+"</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">"green"</span><span class="p">)</span>
+<span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'differential delta'</span><span class="p">)</span>
+
+<span class="n">axs</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="nb">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="s">'values'</span><span class="p">)</span>
+<span class="n">axs</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="nb">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="s">'deltas'</span><span class="p">)</span>
+
+<span class="c"># Hide x labels and tick labels for top plots and y ticks for right plots.</span>
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axs</span><span class="o">.</span><span class="n">flat</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">label_outer</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/img/Black%20Scholes%20%2B%20ML_20_0.svg" alt="svg" /></p>
+
+<p>At least in this simple example above, the inclusion of a derivative improves convergence in training the estimator. I will stop here for now, there are many more examples given in the <a href="https://github.com/differential-machine-learning/notebooks/blob/master/DifferentialML.ipynb">original notebook</a>. Note that their values for the Black-Scholes examples looked decent even for the “standard” network, so some fine-tuning of the network on my part is probably in order. I will continue to digest the paper and try some different examples another time.</p>
+
+  
+</article>
+
+
+<hr class="dingbat related" />
+
+
+
+
+  
+     
+
+
+  <aside class="author related mb4" role="complementary">
+    
+    
+
+<div class="author">
+  
+
+  
+    
+  
+
+  
+
+  <img
+    src="/img/me.gif"
+    class="avatar"
+    alt="Simon Grosser"
+    srcset="/img/me.gif 1x,/img/me_2x.gif 2x"
+    
+    
+  />
+
+
+  
+
+  
+  
+  <h2  class="page-title hr">
+    About
+  </h2>
+
+  <p>I am a physicist living in Cologne, Germany. I am interested in music, science and all things technology. Currently working in finance.</p>
+
+
+  <div class="sidebar-social">
+    <span class="sr-only">Social</span>
+<ul>
+  
+    
+    
+  
+
+  
+
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+  <a href="https://github.com/sim-on" title="GitHub" class="no-mark-external">
+    <span class="icon-github"></span>
+    <span class="sr-only">GitHub</span>
+  </a>
+</li>
+
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+  <a href="https://www.xing.com/profile/Simon_Grosser5" title="XING" class="no-mark-external">
+    <span class="icon-xing2"></span>
+    <span class="sr-only">XING</span>
+  </a>
+</li>
+
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+  <a href="mailto:simonsblog@mailbox.org" title="Email" class="no-mark-external">
+    <span class="icon-mail"></span>
+    <span class="sr-only">Email</span>
+  </a>
+</li>
+
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+  <a href="http://sim-on.github.io/feed.xml" title="RSS" class="no-mark-external">
+    <span class="icon-rss2"></span>
+    <span class="sr-only">RSS</span>
+  </a>
+</li>
+
+  
+</ul>
+
+  </div>
+</div>
+
+  </aside>
+
+
+  
+
+  
+  
+
+  
+    
+
+
+
+
+<aside class="related mb4" role="complementary">
+  <h2 class="hr">Related Posts</h2>
+
+  <ul class="related-posts">
+    
+      
+
+
+<li>
+  <a href="/2017/09/30/leuchtalgen/" class="h4 flip-title">
+    <span>Bioluminescence (leuchtalgen.js)</span>
+  </a>
+  <time class="heading faded fine" datetime="2017-09-30T00:00:00+02:00">30 Sep 2017</time>
+</li>
+
+    
+      
+
+
+<li>
+  <a href="/2017/07/26/hula/" class="h4 flip-title">
+    <span>Hula Hoops and Tomographs</span>
+  </a>
+  <time class="heading faded fine" datetime="2017-07-26T00:00:00+02:00">26 Jul 2017</time>
+</li>
+
+    
+  </ul>
+</aside>
+
+
+  
+
+  
+  
+
+
+    
+
+
+    <footer role="contentinfo">
+  <hr/>
+  
+  <p><small class="copyright">© 2020</small></p>
+  
+  <p><small>Powered by <a class="external" href="https://qwtel.com/hydejack/">Hydejack</a> v<span id="_version">7.0.1</span></small></p>
+  <hr class="sr-only"/>
+</footer>
+
+  </main>
+  <hy-drawer>
+  <header id="_sidebar" class="sidebar" role="banner">
+    
+    <div class="sidebar-bg sidebar-overlay" style="background-color:#A85641;background-image:url(/img/bg.jpg)"></div>
+
+    <div class="sidebar-sticky">
+      <div class="sidebar-about">
+        <h2 class="h1"><a href="/">sim-on</a></h2>
+        
+        
+          <p class="">
+            things I do when I find the time
+
+          </p>
+        
+      </div>
+
+      <nav class="sidebar-nav heading" role="navigation">
+        <span class="sr-only">Navigation:</span>
+<ul>
+  
+  
+  
+  
+    
+      <li>
+        <a
+          id="_navigation"
+          href="/about/"
+          class="sidebar-nav-item"
+          
+          >
+          About
+        </a>
+      </li>
+    
+  
+    
+      <li>
+        <a
+          
+          href="/tag/projects/"
+          class="sidebar-nav-item"
+          
+          >
+          Projects
+        </a>
+      </li>
+    
+  
+    
+      <li>
+        <a
+          
+          href="/tag/this-and-that/"
+          class="sidebar-nav-item"
+          
+          >
+          This and That
+        </a>
+      </li>
+    
+  
+</ul>
+
+      </nav>
+
+      
+
+      <div class="sidebar-social">
+        <span class="sr-only">Social</span>
+<ul>
+  
+    
+    
+  
+
+  
+
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+  <a href="https://github.com/sim-on" title="GitHub" class="no-mark-external">
+    <span class="icon-github"></span>
+    <span class="sr-only">GitHub</span>
+  </a>
+</li>
+
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+  <a href="https://www.xing.com/profile/Simon_Grosser5" title="XING" class="no-mark-external">
+    <span class="icon-xing2"></span>
+    <span class="sr-only">XING</span>
+  </a>
+</li>
+
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+  <a href="mailto:simonsblog@mailbox.org" title="Email" class="no-mark-external">
+    <span class="icon-mail"></span>
+    <span class="sr-only">Email</span>
+  </a>
+</li>
+
+  
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<li>
+  <a href="http://sim-on.github.io/feed.xml" title="RSS" class="no-mark-external">
+    <span class="icon-rss2"></span>
+    <span class="sr-only">RSS</span>
+  </a>
+</li>
+
+  
+</ul>
+
+      </div>
+    </div>
+  </header>
+</hy-drawer>
+
+</hy-push-state>
+
+
+  
+
+  <!--[if gt IE 9]><!---->
+  
+  <script>loadJSDeferred('/assets/js/hydejack.js?v=7.0.1');</script>
+
+  
+
+  <!--<![endif]-->
+
+
+
+  
+<hr class="sr-only"/>
+<h2 class="sr-only">Templates:</h2>
+
+<template id="_animation-template">
+  <div class="animation-main fixed-top">
+    <div class="content">
+      <div class="page"></div>
+    </div>
+  </div>
+</template>
+
+<template id="_loading-template">
+  <div class="loading">
+    <span class="sr-only">Loading…</span>
+    <span class="icon-cog"></span>
+  </div>
+</template>
+
+<template id="_error-template">
+  <div class="page">
+    <h1 class="page-title">Error</h1>
+    
+    
+    <p class="lead">
+      Sorry, an error occurred while loading: <a class="this-link" href=""></a>.
+    </p>
+  </div>
+</template>
+
+<template id="_back-template">
+  <a id="_back" class="back nav-btn no-hover">
+    <span class="sr-only">Back</span>
+    <span class="icon-arrow-left2"></span>
+  </a>
+</template>
+
+</body>
+</html>

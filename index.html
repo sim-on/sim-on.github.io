@@ -33,7 +33,7 @@ Powered by Hydejack v7.0.1 <https://qwtel.com/hydejack/>
   
 <!-- Begin Jekyll SEO tag v2.6.1 -->
 <title>Home | sim-on</title>
-<meta name="generator" content="Jekyll v3.9.0" />
+<meta name="generator" content="Jekyll v3.6.3" />
 <meta property="og:title" content="Home" />
 <meta name="author" content="Simon Grosser" />
 <meta property="og:locale" content="en" />
@@ -187,6 +187,76 @@ Powered by Hydejack v7.0.1 <https://qwtel.com/hydejack/>
     
 
   
+  
+
+
+<article id="post-2020-10-22-differentialML" class="page post mb6" role="article">
+  <header>
+    <h1 class="post-title">
+      <a href="/2020/10/22/differentialML/" class="flip-title">
+        Machine Learning + Monte Carlo + Automatic Differentiation
+      </a>
+    </h1>
+
+    <p class="post-date heading">
+      
+      <time datetime="2020-10-22T00:00:00+02:00">22 Oct 2020</time>
+      
+      
+      
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+
+
+
+
+
+
+
+on <a href="/tag/projects/" class="flip-title">Projects</a>
+
+    </p>
+
+    
+
+
+
+  <div class="hr pb0"></div>
+
+
+  </header>
+
+  
+    <p>I recently stumbled on the paper <a href="https://arxiv.org/abs/2005.02347">Differential Machine Learning</a> by Brian Huge and Antoine Savine and was immediately intrigued because it connects some concepts in interesting ways. “Differential” in the title alludes to the fact that derivatives can be used to improve the training of a neural network when little training data is available.</p>
+
+<p>The libraries (TensorFlow, pytorch, …) usually used for implementing said neural networks make this possible in an efficient manner: Since the gradients of the outputs w.r.t. the inputs are automatically calculated in the backward pass (via the computational graph), it is possible to compare these backpropagated results to labels of differentials and include precomputed gradients in the training of the network.</p>
+
+
+    
+    
+    <footer>
+      <p class="read-more">
+        Continue reading <a class="heading flip-title" href="/2020/10/22/differentialML/">Machine Learning + Monte Carlo + Automatic Differentiation</a>
+      </p>
+    </footer>
+  
+</article>
+
+
   
 
 

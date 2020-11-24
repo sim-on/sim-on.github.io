@@ -33,7 +33,7 @@ Powered by Hydejack v7.0.1 <https://qwtel.com/hydejack/>
   
 <!-- Begin Jekyll SEO tag v2.6.1 -->
 <title>Hula Hoops and Tomographs | sim-on</title>
-<meta name="generator" content="Jekyll v3.9.0" />
+<meta name="generator" content="Jekyll v3.6.3" />
 <meta property="og:title" content="Hula Hoops and Tomographs" />
 <meta name="author" content="Simon Grosser" />
 <meta property="og:locale" content="en" />
@@ -245,10 +245,10 @@ If you watch the video, you might think (I surely did) that this is the work of 
 
 <p><img src="/img/hula/nails.jpg" alt="nails" class="lead" /></p>
 
-<p>Vrellis uses the help of a computer and an insane amount of patience to create these images, as he tells <a href="http://artof01.com/vrellis/works/knit.html">on his website</a>. The algorithm involved <a href="https://hackaday.com/2016/07/28/computer-designed-portraits-knit-by-hand/">as described here</a> is brute force: Given an image as an input, it iterates through all possible lines to find the next position of the string. For a circular arrangement of \(N\) pins overlaid over an input image, the algorithm works as follows:</p>
+<p>Vrellis uses the help of a computer and an insane amount of patience to create these images, as he tells <a href="http://artof01.com/vrellis/works/knit.html">on his website</a>. The algorithm involved <a href="https://hackaday.com/2016/07/28/computer-designed-portraits-knit-by-hand/">as described here</a> is brute force: Given an image as an input, it iterates through all possible lines to find the next position of the string. For a circular arrangement of <code class="MathJax_Preview">N</code><script type="math/tex">N</script> pins overlaid over an input image, the algorithm works as follows:</p>
 <ul>
   <li>Step 1: Pick a starting pin at random or use the last used one as a starting point</li>
-  <li>Step 2: Look at the subset of the \(N-1\) pins that is further than a previously defined distance \(d\) from the current pin</li>
+  <li>Step 2: Look at the subset of the <code class="MathJax_Preview">N-1</code><script type="math/tex">N-1</script> pins that is further than a previously defined distance <code class="MathJax_Preview">d</code><script type="math/tex">d</script> from the current pin</li>
   <li>Step 3: Sum up the amount of “blackness” traced by the individual lines connecting the possible pins to the current pin. Choose the pin with the line covering the most total blackness as the next starting pin</li>
   <li>Step 4: For all of the pixels in the line, brighten up the corresponding pixels of the original image by a fixed amount</li>
   <li>Step 5: Repeat until a given number of lines is reached</li>
@@ -265,7 +265,7 @@ I used the TTS built into macOS to export the list of pins into an audio file:</
 <p>I inserted the command</p>
 <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[[</span>slnc 3500]]
 </code></pre></div></div>
-<p>after every line in the file <code class="language-plaintext highlighter-rouge">points.txt</code>. This will cause the TTS engine to pause for 3.5 seconds after each number.
+<p>after every line in the file <code class="highlighter-rouge">points.txt</code>. This will cause the TTS engine to pause for 3.5 seconds after each number.
 I then numbered the pins on the ring and had my laptop read me the numbers out loud. When I made a mistake, I had to rewind the audio and track back to the point where I made the mistake. All in all, this took much longer than the theoretical amount of time needed because of both making a lot of mistakes and my arm getting sore after a while.</p>
 
 <p>I uploaded the python code on <a href="https://github.com/sim-on/aNewWayToKnit">Github</a>, it accepts a square image as an input and produces a list of points and a preview image of the line art as an output.</p>
@@ -441,6 +441,17 @@ I then numbered the pins on the ring and had my laptop read me the numbers out l
   <h2 class="hr">Related Posts</h2>
 
   <ul class="related-posts">
+    
+      
+
+
+<li>
+  <a href="/2020/10/22/differentialML/" class="h4 flip-title">
+    <span>Machine Learning + Monte Carlo + Automatic Differentiation</span>
+  </a>
+  <time class="heading faded fine" datetime="2020-10-22T00:00:00+02:00">22 Oct 2020</time>
+</li>
+
     
       
 
